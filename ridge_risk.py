@@ -67,9 +67,9 @@ for i in range(100):
 
 xx = np.mean(MSE_simu, 0)
 yerr = np.std(MSE_simu, 0)
-plt.figure(0, figsize=(12, 8))
-plt.errorbar(lbd_seq, xx, yerr, capsize=2, lw=2, ls='--', label='Simulation', color='orange')
-plt.plot(lbd_seq_2, MSE_theo, lw=3, ls='-', label='Theory')
+# plt.figure(0, figsize=(12, 8))
+plt.plot(lbd_seq_2, MSE_theo, lw=4, ls='-', label='Theory')
+plt.errorbar(lbd_seq, xx, yerr, capsize=2, lw=3, ls='--', label='Simulation')
 plt.grid(linestyle='dotted')
 plt.xlabel(r'$\lambda$', fontsize=14)
 plt.ylabel(r'$MSE(\hat\beta)/\Vert\beta\Vert^2$', fontsize=14)
