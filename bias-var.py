@@ -52,7 +52,7 @@ for i in range(100):
     lbd = lbd_seq_2[i]
     theory_2[i, :] = MSE_original(lbd, gamma_2, alpha, sigma, verbose=1)
 
-plt.figure(0, figsize=(20, 6))
+plt.figure(0)
 p1 = plt.subplot(121)
 # plt.plot(lbd_seq_2, theory[:, 0] / alpha ** 2, label='MSE')
 p1.plot(lbd_seq_2, theory_1[:, 1] / alpha ** 2, label=r'$Bias^2$', lw=4)
@@ -81,7 +81,7 @@ for i in range(100):
     lbd = gamma * sigma ** 2 / alpha ** 2
     theory_3[i, :] = MSE_original(lbd, gamma, alpha, sigma, verbose=1)
 
-plt.figure(0, figsize=(12, 8))
+plt.figure(0)
 plt.plot(gamma_seq, theory_3[:, 0], label='MSE', lw=4)
 plt.plot(gamma_seq, theory_3[:, 1], label=r'$Bias^2$', ls='--', lw=4)
 plt.plot(gamma_seq, theory_3[:, 2], label=r'$Var$', ls=':', lw=4)

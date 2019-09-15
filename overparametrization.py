@@ -19,11 +19,12 @@ rep = 10
 dual = np.zeros((rep, num_steps))
 relu = np.zeros((rep, num_steps))
 ridge = np.zeros((rep, num_steps))
-lbd = 1e-3
+lbd = 1e-4
 
 # Gaussian dual projection
 for i in range(num_steps):
-    print(i)
+    if i % 10 == 0:
+        print(i)
     zeta = zeta_seq[i]
     d = int(n * zeta)
     for k in range(rep):
@@ -59,12 +60,12 @@ for i in range(num_steps):
 
 plt.errorbar(zeta_seq, np.mean(dual, axis=0), np.std(dual, axis=0), capsize=2, lw=2, label='linear')
 plt.errorbar(zeta_seq, np.mean(relu, axis=0), np.std(relu, axis=0), capsize=2, lw=2, label='ReLU')
-# plt.errorbar(zeta_seq, np.mean(ridge, axis=0), np.std(ridge, axis=0), capsize=2, lw=2, label='ridge')
+plt.errorbar(zeta_seq, np.mean(ridge, axis=0), np.std(ridge, axis=0), capsize=2, lw=2, label='ridge')
 plt.legend()
 plt.grid(linestyle='dotted')
 plt.title(r"$\gamma={:.2f},\alpha={},\sigma={}$".format(gamma, alpha, sigma))
 plt.xlabel(r'$\zeta$')
 plt.ylabel("Test error")
-plt.savefig("double_descent_gamma_{:.2f}_alpha_{}_sigma_{}.png".format(gamma, alpha, sigma))
+# plt.savefig("double_descent_gamma_{:.2f}_alpha_{}_sigma_{}.png".format(gamma, alpha, sigma))
 
-
+plt.plot(zeta_seq, np.mean(relu, 0))

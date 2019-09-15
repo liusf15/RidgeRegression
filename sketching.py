@@ -9,6 +9,7 @@ from numpy.linalg import inv
 from scipy.integrate import quad
 import os
 
+
 def generate_haar_matrix(n, p):
     if n <= p:
         return np.linalg.qr(np.random.randn(p, n))[0].T
