@@ -137,8 +137,8 @@ xi_seq = np.linspace(0.1, 1, 20)
 rep = 10
 simu_primal = np.zeros((20, rep))
 # lbd_seq = [0.1, 0.3, 0.5]
-lbd = gamma * sigma ** 2 / alpha ** 2
-# lbd = 1.5
+# lbd = gamma * sigma ** 2 / alpha ** 2
+lbd = 1.5
 for i in range(20):
     xi = xi_seq[i]
     m = int(n * xi)
@@ -165,11 +165,11 @@ yerr = np.std(simu_primal, 1)
 plt.plot(xi_seq_2, theory_primal, label='Theory', lw=4, ls='--')
 plt.errorbar(xi_seq, xx, yerr, label='Simulation', capsize=3, lw=3)
 plt.grid(linestyle='dotted')
-plt.xlabel(r'$\xi$', fontsize=14)
-plt.ylabel(r'$MSE(\hat\beta_{p})/MSE(\hat\beta)$', fontsize=14)
-plt.title(r'Primal sketching MSE', fontsize=14)
-plt.legend(fontsize=14)
-plt.savefig('./Plots/primal_orth_gamma_{}_alpha_{}_sigma_{}.png'.format(gamma, alpha, sigma))
+plt.xlabel(r'$\xi$', fontsize=15)
+plt.ylabel(r'$MSE(\hat\beta_{p})/MSE(\hat\beta)$', fontsize=15)
+plt.title(r'Primal sketching MSE', fontsize=15)
+plt.legend(fontsize=15)
+plt.savefig('./Plots/primal_orth_gamma_{}_lbd_{}_alpha_{}_sigma_{}.png'.format(gamma, lbd, alpha, sigma))
 
 # bias-var tradeoff
 primal_bia_var = np.zeros((100, 3))
@@ -178,13 +178,13 @@ for i in range(100):
     primal_bia_var[i, :] = primal_orth(lbd, gamma, xi, alpha, sigma, 1)
 
 MSE_ridge, bias_ridge, var_ridge = MSE_original(lbd, gamma, alpha, sigma, 1)
-plt.plot(xi_seq_2, primal_bia_var[:, 1] / bias_ridge, label='Bias^2', lw=3)
-plt.plot(xi_seq_2, primal_bia_var[:, 2] / var_ridge, label='Var', ls='-.', lw=3)
+plt.plot(xi_seq_2, primal_bia_var[:, 1] / bias_ridge, label='Bias^2', lw=4)
+plt.plot(xi_seq_2, primal_bia_var[:, 2] / var_ridge, label='Var', ls='-.', lw=4)
 plt.grid(linestyle='dotted')
-plt.legend(fontsize=14)
-plt.xlabel(r'$\xi$', fontsize=14)
-plt.title('Primal sketching bias and variance', fontsize=14)
-plt.savefig('./Plots/primal_bia_var_gamma_{}_alpha_{}_sigma_{}.png'.format(gamma, alpha, sigma))
+plt.legend(fontsize=16)
+plt.xlabel(r'$\xi$', fontsize=16)
+plt.title('Primal sketching bias and variance', fontsize=16)
+plt.savefig('./Plots/primal_bia_var_gamma_{}_lbd_{}_alpha_{}_sigma_{}.png'.format(gamma, lbd, alpha, sigma))
 
 
 # dual sketch
@@ -244,3 +244,24 @@ plt.xlabel(r'$\zeta$', fontsize=14)
 plt.title('Dual sketching bias and variance', fontsize=14)
 plt.savefig('./Plots/dual_bia_var_gamma_{}_alpha_{}_sigma_{}.png'.format(gamma, alpha, sigma))
 
+# marginal regression
+sigma = 1
+alpha_seq = np.linspace(0.1, 10, 100)
+gamma_seq = [0.7, 1, 3]
+marginal_re = np.zeros((3, 100))
+for i in range(3):
+    gamma = gamma_seq[i]
+    for j in range(100):
+        alpha = alpha_seq[j]
+        lbd = gamma * sigma ** 2 / alpha ** 2 + 1 + gamma
+        marginal_re[i, j] = marginal_orth(lbd, gamma, alpha, sigma) / MSE_original(gamma * sigma ** 2 / alpha ** 2, gamma, alpha, sigma)
+
+plt.plot(alpha_seq, marginal_re[0, :], label=r'$\gamma={}$'.format(gamma_seq[0]), lw=4)
+plt.plot(alpha_seq, marginal_re[1, :], label=r'$\gamma={}$'.format(gamma_seq[1]), lw=4, ls='--')
+plt.plot(alpha_seq, marginal_re[2, :], label=r'$\gamma={}$'.format(gamma_seq[2]), lw=4, ls=':')
+plt.xlabel(r'SNR', fontsize=14)
+plt.ylabel(r'Relative efficiency', fontsize=14)
+plt.title('Relative efficiency of marginal regression', fontsize=14)
+plt.legend(fontsize=14)
+plt.grid(linestyle='dotted')
+plt.savefig('./Plots/marginal_re.png')
