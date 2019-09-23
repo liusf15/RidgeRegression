@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="87dc0efb-8355-448f-991f-c9573bc97eea" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/choose_lambda.py" beforeDir="false" afterPath="$PROJECT_DIR$/fig8-compare-CV.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dual_gaus.py" beforeDir="false" afterPath="$PROJECT_DIR$/fig4-9-dual-gaussian.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fig3-fig4-primal-orth.py" beforeDir="false" afterPath="$PROJECT_DIR$/fig3-4-10-primal-orth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fig13-Optimal_lambda.py" beforeDir="false" afterPath="$PROJECT_DIR$/fig12-13-Optimal_lambda.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -82,10 +80,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/fig13-Optimal_lambda.py">
+        <entry file="file://$PROJECT_DIR$/fig12-13-Optimal_lambda.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="2" column="26" selection-start-line="2" selection-start-column="26" selection-end-line="2" selection-end-column="26" />
+            <state relative-caret-position="180">
+              <caret line="12" column="9" lean-forward="true" selection-start-line="12" selection-start-column="9" selection-end-line="12" selection-end-column="9" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -131,6 +129,7 @@
       <find>cross</find>
       <find>marginal</find>
       <find>margi</find>
+      <find>MSE_gamma=</find>
     </findStrings>
     <replaceStrings>
       <replace>self.lbd</replace>
@@ -450,10 +449,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fig13-Optimal_lambda.py">
+    <entry file="file://$PROJECT_DIR$/fig12-13-Optimal_lambda.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="26" selection-start-line="2" selection-start-column="26" selection-end-line="2" selection-end-column="26" />
+        <state relative-caret-position="180">
+          <caret line="12" column="9" lean-forward="true" selection-start-line="12" selection-start-column="9" selection-end-line="12" selection-end-column="9" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

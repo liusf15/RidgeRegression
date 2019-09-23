@@ -1,5 +1,5 @@
 """
-    Codes for reproducing Figure 13
+    Codes for reproducing Figure 12, 13
     Numerical ways to Find the optimal lambda of orthogonal sketching
 """
 
@@ -152,6 +152,7 @@ for i in range(200):
     lbd_dual_optimal[i] = lbd
     mse_dual_optimal[i, :] = MSE('dual', lbd, gamma, zeta, alpha, sigma, verbose)
 
+# Figure 12
 # MSE at optimal lambda, different xi
 plt.plot(xi_seq, mse_primal_optimal[:, 0], label='Primal MSE', ls=':')
 plt.plot(xi_seq, mse_dual_optimal[:, 0], label='Dual MSE', ls='--')
@@ -302,6 +303,7 @@ plt.grid(linestyle='dotted')
 plt.title(r'MSE, $\gamma=${},$\lambda=${}'.format(gamma, lbd))
 plt.savefig('MSE_gamma={}.png'.format(gamma))
 
+# Figure 13
 # compare full and primal sketch, fix lambda
 alpha = 1
 sigma = 1
@@ -391,83 +393,3 @@ plt.grid(linestyle='dotted')
 plt.title(r'Optimal $\lambda$, $\gamma$=0.7', fontsize=14)
 plt.savefig('lbd_full_dual_primal.png')
 
-optimal_lambda('full', gamma, xi, alpha, sigma)
-gamma / xi
-
-gamma = 0.1
-xi = 0.8
-lbd_seq = np.linspace(0.001, 0.5, 100)
-track_1 = np.zeros(100)
-track_2 = np.zeros(100)
-for i in range(100):
-    lbd = lbd_seq[i]
-    track_1[i] = MSE('full', lbd, gamma, xi, alpha, sigma)
-    track_2[i] = MSE('original', lbd/xi, gamma/xi, 1, alpha, sigma)
-
-plt.plot(lbd_seq, track_1)
-plt.plot(lbd_seq, track_2)
-plt.plot(gamma,  MSE('full', gamma, gamma, xi, alpha, sigma), 'x')
-
-
-# relative efficiency
-gamma_seq = np.linspace(0.1, 2, 100)
-alpha = 1
-sigma = 1
-snr = alpha ** 2 / sigma ** 2
-ridge_mse = np.zeros((3, 100))
-marginal_mse = np.zeros((3, 100))
-RE = np.zeros((3, 100))
-alpha_seq = [0.5, 1, 1.5]
-for i in range(3):
-    alpha = alpha_seq[i]
-    for j in range(100):
-        gamma = gamma_seq[j]
-        lbd = gamma * sigma ** 2 / alpha ** 2
-        ridge_mse[i, j] = MSE_original(lbd, gamma, alpha, sigma, verbose=0)
-        marginal_mse[i, j] = alpha ** 2 * (1 - alpha ** 2 / (alpha ** 2 * (1 + gamma) + gamma * sigma ** 2))
-
-RE = (marginal_mse - ridge_mse) / ridge_mse
-for i in range(3):
-    snr = alpha_seq[i] ** 2 / sigma ** 2
-    plt.plot(gamma_seq, ridge_mse[i, :], ls='--', label='SNR={}'.format(snr))
-
-plt.legend()
-plt.grid(linestyle='dotted')
-plt.xlabel(r'$\alpha$')
-plt.ylabel('Relative optimal MSE')
-plt.title('Relative efficiency')
-plt.savefig('RE_ridge_marginal_vary_gamma.png')
-
-alpha_seq = np.linspace(0.3, 2, 100)
-gamma_seq = [0.2, 0.5, 0.7]
-for i in range(3):
-    gamma = gamma_seq[i]
-    for j in range(20):
-        alpha = alpha_seq[j]
-        lbd = gamma * sigma ** 2 / alpha ** 2
-        ridge_mse[i, j] = MSE_original(lbd, gamma, alpha, sigma, verbose=0)
-        marginal_mse[i, j] = alpha ** 2 * (1 - alpha ** 2 / (alpha ** 2 * (1 + gamma) + gamma * sigma ** 2))
-
-RE = (marginal_mse - ridge_mse) / ridge_mse
-for i in range(3):
-    # snr = alpha_seq[i] ** 2 / sigma ** 2
-    plt.plot(alpha_seq, marginal_mse[i, :], label=r'$\gamma$={}'.format(gamma_seq[i]))
-    plt.plot(alpha_seq, ridge_mse[i, :], ls='--', label=r'$\gamma$={}'.format(gamma_seq[i]))
-
-plt.legend()
-plt.grid(linestyle='dotted')
-plt.xlabel(r'$\alpha$')
-plt.ylabel('Relative optimal MSE')
-plt.title('Relative efficiency')
-plt.savefig('RE_ridge_marginal_vary_alpha.png')
-
-# how the optimal lambda depends on gamma and xi
-alpha = 1
-sigma = 1
-gamma_seq = np.linspace(0.1, 2, 100)
-optim_lbd = np.zeros(100)
-for i in range(100):
-    gamma = gamma_seq[i]
-    optim_lbd[i] = optimal_lambda('primal', gamma, xi=0.3, alpha=alpha, sigma=sigma)[0]
-
-plt.plot(gamma_seq, optim_lbd)
