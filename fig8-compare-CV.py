@@ -1,3 +1,8 @@
+"""
+    Codes for reproducing Figure 8
+    Compare different ways to do cross validation
+"""
+
 import numpy as np
 import matplotlib as mpl
 

@@ -3,6 +3,7 @@
     Simulation on primal orthogonal sketching
     Bias-variance tradeoff
     Relative efficiency of marginal regression
+    Simulation on full sketching
 """
 
 import numpy as np
@@ -272,3 +273,59 @@ plt.title('Relative efficiency of marginal regression', fontsize=14)
 plt.legend(fontsize=14)
 plt.grid(linestyle='dotted')
 plt.savefig('./Plots/marginal_re.png')
+
+
+# full sketch
+n = 1000
+gamma = 0.1
+p = int(n * gamma)
+alpha = 1
+sigma = 1
+c = np.linspace(0.1, 1, 20)
+track_full = np.zeros((20, 3))
+rep = 10
+lbd_seq = [0.1, 0.3, 0.5]
+theory_full = np.zeros((100, 3))
+for j in range(1):
+    lbd = lbd_seq[j]
+    for i in range(20):
+        xi = c[i]
+        m = int(n * xi)
+        for k in range(rep):
+            X = np.random.randn(n, p)
+            beta = np.random.randn(p, 1) * alpha / sqrt(p)
+            epsilon = np.random.randn(n, 1) * sigma
+            Y = X @ beta + epsilon
+            L = generate_haar_matrix(m, n)
+            beta_full = np.linalg.inv(X.T @ L.T @ L @ X / n + lbd * np.identity(p)) @ X.T @ L.T @ L @ Y / n
+            track_full[i, j] = track_full[i, j] + np.linalg.norm(beta_full - beta) ** 2
+
+xi_seq = np.linspace(0.1, 1, 100)
+for j in range(1):
+    lbd = lbd_seq[j]
+    for i in range(100):
+        xi = xi_seq[i]
+        theory_full[i, j] = MSE_full(lbd, gamma, xi, alpha, sigma)
+
+
+for j in [0]:
+    lbd = lbd_seq[j]
+    plt.scatter(c, track_full[:, j] / rep, label=r'Simulation $\lambda$={}'.format(lbd))
+    plt.plot(xi_seq, theory_full[:, j], label=r'Theory $\lambda$={}'.format(lbd))
+
+theory_full = np.zeros((100, 3))
+lbd = gamma * sigma ** 2 / alpha ** 2
+for i in range(100):
+    xi = xi_seq[i]
+    theory_full[i, :] = MSE_full(lbd, gamma, xi, alpha, sigma, verbose=1)
+
+plt.plot(xi_seq, theory_full[:, 0], label='MSE')
+plt.plot(xi_seq, theory_full[:, 1], label='Bias')
+plt.plot(xi_seq, theory_full[:, 2], label='Variance')
+plt.legend()
+plt.legend(fontsize=10)
+plt.xlabel(r'$\xi$', fontsize=14)
+plt.ylabel(r'$MSE(\hat\beta_p)$', fontsize=14)
+plt.title('MSE full sketch', fontsize=14)
+plt.grid(linestyle='dotted')
+plt.savefig('full_lambda=0.3,0.5.png')
