@@ -1,3 +1,8 @@
+"""
+    Codes for reproducing Figure 5
+    Simulation about MSE of ridge regression
+"""
+
 import numpy as np
 import matplotlib as mpl
 

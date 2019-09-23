@@ -1,3 +1,10 @@
+"""
+    Codes for reproducing Figure 3, 4
+    Simulation on primal orthogonal sketching
+    Bias-variance tradeoff
+    Relative efficiency of marginal regression
+"""
+
 import numpy as np
 import matplotlib as mpl
 

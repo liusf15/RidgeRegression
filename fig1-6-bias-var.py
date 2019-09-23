@@ -1,3 +1,9 @@
+"""
+    Codes for reproducing Figure 1, 6
+    Bias-variance tradeoff of ridge regression, fixed lambda and optimal lambda
+"""
+
+
 import numpy as np
 import matplotlib as mpl
 
@@ -55,17 +61,17 @@ lbd_seq_2 = np.linspace(0.001, 3, 100)
 theory_1 = np.zeros((100, 3))
 for i in range(100):
     lbd = lbd_seq_2[i]
-    theory_1[i, :] = residual_original(lbd, gamma_1, alpha, sigma, verbose=1)
+    theory_1[i, :] = MSE_original(lbd, gamma_1, alpha, sigma, verbose=1)
 
 gamma_2 = 0.8
 theory_2 = np.zeros((100, 3))
 for i in range(100):
     lbd = lbd_seq_2[i]
-    theory_2[i, :] = residual_original(lbd, gamma_2, alpha, sigma, verbose=1)
+    theory_2[i, :] = MSE_original(lbd, gamma_2, alpha, sigma, verbose=1)
 
 plt.figure(0, figsize=(10, 4))
 p1 = plt.subplot(121)
-plt.plot(lbd_seq_2, theory_1[:, 0], label='train error', ls='-', lw=4)
+plt.plot(lbd_seq_2, theory_1[:, 0], label='test error', ls='-', lw=4)
 p1.plot(lbd_seq_2, theory_1[:, 1], label=r'$Bias^2$', ls='--', lw=4)
 p1.plot(lbd_seq_2, theory_1[:, 2], label='Var', ls=':', lw=4)
 p1.set_xlabel(r'$\lambda$', fontsize=14)
@@ -73,7 +79,7 @@ p1.grid(linestyle='dotted')
 p1.set_title(r'$\gamma={}$'.format(gamma_1), fontsize=14)
 
 p2 = plt.subplot(122)
-p2.plot(lbd_seq_2, theory_2[:, 0], label='train error', ls='-', lw=4)
+p2.plot(lbd_seq_2, theory_2[:, 0], label='test error', ls='-', lw=4)
 p2.plot(lbd_seq_2, theory_2[:, 1], label=r'$Bias^2$', ls='--', lw=4)
 p2.plot(lbd_seq_2, theory_2[:, 2], label='Var', ls=':', lw=4)
 p2.set_xlabel(r'$\lambda$', fontsize=14)

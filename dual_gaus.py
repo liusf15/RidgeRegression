@@ -6,6 +6,7 @@ from numpy.linalg import norm
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+
 os.chdir('/Users/sifanliu/Dropbox/Dual Sketch/RidgeRegression')
 
 
@@ -121,7 +122,7 @@ def diff_MP(z, gamma, xi, lbd):
     tol = 1e-8
     maxiter = 100
     ans = (inv_MP_Stieltjes_inv(z + epsilon, gamma, xi, lbd) - inv_MP_Stieltjes_inv(z - epsilon, gamma, xi, lbd)) / (
-                2 * epsilon)
+            2 * epsilon)
     old = ans
     for i in range(maxiter):
         ans = (inv_MP_Stieltjes_inv(z + epsilon, gamma, xi, lbd)
@@ -141,8 +142,8 @@ def inv_MP_Stieltjes_derivative_0(gamma, xi, lbd):
     return 1 / diff_MP(m_0, gamma, xi, lbd)
 
 
-n = 500
-p = 700
+n = 600
+p = 400
 d = 600
 gamma = p / n
 xi = d / n
@@ -168,19 +169,49 @@ for i in range(num_steps):
         beta_dual = X.T / n @ inv(X @ R @ R.T @ X.T / n + lbd * np.identity(n)) @ Y
         dual_simu_gaus[k, i] = norm(beta_dual - beta) ** 2
 
+# Gaussian primal projection
+primal_simu_gaus = np.zeros((rep, num_steps))
+bias_2_primal_gaus = np.zeros((rep, num_steps))
+bias_3_primal_gaus = np.zeros((rep, num_steps))
+for i in range(num_steps):
+    zeta = zeta_seq[i]
+    d = int(n * zeta)
+    for k in range(rep):
+        X = np.random.randn(n, p)
+        beta = np.random.randn(p, 1) * alpha / sqrt(p)
+        epsilon = np.random.randn(n, 1) * sigma
+        Y = X @ beta
+        L = np.random.randn(d, n) / sqrt(d)
+        # R = generate_haar_matrix(p, d)
+        beta_primal = inv(X.T @ L.T @ L @ X / n + lbd * np.identity(p)) @ X.T @ Y / n
+        # beta_primal = X.T @ inv(L.T @ L @ X @ X.T / n + lbd * np.identity(n)) @ Y / n
+        primal_simu_gaus[k, i] = norm(beta_primal - beta) ** 2
+        bias_2_primal_gaus[k, i] = 2 * beta.T @ beta_primal
+        bias_3_primal_gaus[k, i] = norm(beta_primal) ** 2
+
 # theoretical part
 zeta_seq_2 = np.linspace(0.1, 2, 100)
-theo_gaus = np.zeros(100)
+theo_gaus = np.zeros((100, 4))
 for j in range(1):
-    lbd = gamma * sigma ** 2 / alpha ** 2
+    # lbd = gamma * sigma ** 2 / alpha ** 2
     lbd = 1
     for i in range(100):
         zeta = zeta_seq_2[i]
         bias_1 = alpha ** 2
         bias_2 = 2 * alpha ** 2 / gamma * inv_MP_Stieltjes_0(gamma, zeta, lbd)
         bias_3 = alpha ** 2 / gamma * inv_MP_Stieltjes_derivative_0(gamma, zeta, lbd)
-        theo_gaus[i] = bias_1 - bias_2 + bias_3
+        theo_gaus[i, :] = [bias_1 - bias_2 + bias_3, bias_1, bias_2, bias_3]
 
+# plt.plot(zeta_seq, np.mean(bias_2_primal_gaus, 0))
+# plt.plot(zeta_seq_2, theo_gaus[:, 2])
+# plt.plot(zeta_seq, np.mean(bias_3_primal_gaus, 0), ':')
+# plt.plot(zeta_seq_2, theo_gaus[:, 3], ':')
+# plt.plot(zeta_seq, np.mean(bias_3_primal_gaus, 0) - np.mean(bias_2_primal_gaus, 0), '-.')
+# plt.plot(zeta_seq_2, theo_gaus[:, 3] - theo_gaus[:, 2], '-.')
+#
+# plt.plot(zeta_seq, np.mean(dual_simu_gaus, 0) - 1, '--')
+
+# plot results for dual gaussian
 # plt.figure(1, figsize=(12, 8))
 xx = np.mean(dual_simu_gaus, axis=0)
 yerr = np.std(dual_simu_gaus, axis=0)
@@ -193,3 +224,69 @@ plt.xlabel(r'$d/n$', fontsize=14)
 plt.ylabel(r'MSE', fontsize=14)
 plt.title('Gaussian dual sketch (zero noise)', fontsize=14)
 plt.savefig('./Plots/dual_gaus_gamma_{}_alpha_{}_lbd_{}.png'.format(gamma, alpha, lbd))
+
+# plot results for primal gaussian
+xx_primal = np.mean(primal_simu_gaus, axis=0)
+yerr_primal = np.std(primal_simu_gaus, axis=0)
+plt.errorbar(zeta_seq, xx_primal, yerr_primal, capsize=3, lw=4, label='Simulation')
+plt.plot(zeta_seq_2, theo_gaus[:, 0], lw=4, ls='--', label='Theory')
+plt.plot(zeta_seq_2, np.ones(100) * MSE_original(lbd, gamma, alpha, sigma), lw=3, ls='-.', label='No sketching')
+plt.grid(linestyle='dotted')
+plt.legend(fontsize=14)
+plt.xlabel(r'$d/n$', fontsize=14)
+plt.ylabel(r'MSE', fontsize=14)
+plt.title('Gaussian primal sketch (zero noise)', fontsize=14)
+
+# check intermediate
+lbd = 1
+X = np.random.randn(n, p)
+beta = np.random.randn(p, 1) * alpha / sqrt(p)
+epsilon = np.random.randn(n, 1) * sigma
+Y = X @ beta
+zeta = 0.3
+d = int(n * zeta)
+L = np.random.randn(d, n)
+W = L.T @ L
+G = X @ X.T
+bia_2 = 2 * np.trace(inv(W / d + lbd * n * inv(G))) / p * alpha ** 2
+bia_2_theory = 2 * alpha ** 2 / gamma * inv_MP_Stieltjes_0(gamma, zeta, lbd)
+bia_2 = 2 * np.trace(inv(W @ G / n / d + lbd * np.identity(n)) @ G / n) / p * alpha ** 2
+print(bia_2, bia_2_theory)
+
+bia_3 = np.trace(inv(W @ G / n / d + lbd * np.identity(n)) @ G / n @ inv(
+    W @ G / n / d + lbd * np.identity(n)) @ G / n) / p * alpha ** 2
+bia_3_theory = alpha ** 2 / gamma * inv_MP_Stieltjes_derivative_0(gamma, zeta, lbd)
+print(bia_3, bia_3_theory)
+
+beta_hat = inv(X.T @ L.T @ L @ X / n / d + lbd * np.identity(p)) @ X.T @ Y / n
+beta_hat_2 = X.T @ inv(L.T @ L @ X @ X.T / n / d + lbd * np.identity(n)) @ X @ beta / n
+mse = norm(beta_hat - beta) ** 2
+print("mse", mse)
+
+# here comes the problem
+2 * beta.T @ X.T @ inv(L.T @ L @ X @ X.T / n / d + lbd * np.identity(n)) @ X @ beta / n
+2 * np.trace(X.T @ inv(L.T @ L @ X @ X.T / n / d + lbd * np.identity(n)) @ X / n) / p * alpha ** 2
+
+norm(beta_hat_2) ** 2
+(X.T @ inv(L.T @ L @ X @ X.T / n / d + lbd * np.identity(n)) @ X @ beta / n).T @ X.T @ inv(L.T @ L @ X @ X.T / n / d + lbd * np.identity(n)) @ X @ beta / n
+beta.T @ X.T / n @ inv(L.T @ L @ X @ X.T / n / d + lbd * np.identity(n)) @ X @ X.T @ inv(L.T @ L @ X @ X.T / n / d + lbd * np.identity(n)) @ X @ beta / n
+np.trace(X.T @ inv(L.T @ L @ X @ X.T / n / d + lbd * np.identity(n)) @ X / n @ X.T / n @
+               inv(L.T @ L @ X @ X.T / n / d + lbd * np.identity(n)) @ X) / p
+
+
+print(alpha ** 2 - 2 * np.trace(inv(W @ G / n / d + lbd * np.identity(n)) @ G / n) / p * alpha ** 2 + np.trace(
+    inv(W @ G / n / d + lbd * np.identity(n)) @ G / n @ inv(
+        W @ G / n / d + lbd * np.identity(n)) @ G / n) / p * alpha ** 2)
+
+print(alpha ** 2 -
+      2 * np.trace(X.T @ inv(L.T @ L @ X @ X.T / n / d + lbd * np.identity(n)) @ X / n) / p * alpha ** 2 +
+      np.trace(X.T @ inv(L.T @ L @ X @ X.T / n / d + lbd * np.identity(n)) @ X / n @ X.T / n @
+               inv(L.T @ L @ X @ X.T / n / d + lbd * np.identity(n)) @ X) / p)
+
+bia_1_theory = alpha ** 2
+bia_1_theory - bia_2_theory + bia_3_theory
+
+A = inv(W / d + lbd * n * inv(G))
+a1 = np.trace(A @ inv(G) @ A @ G) / n
+a2 = np.trace(A @ A) / n
+print(a1, a2)

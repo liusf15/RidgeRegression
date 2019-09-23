@@ -1,3 +1,8 @@
+"""
+    Codes for reproducing Figure 2
+    K-fold cross-validation on Million Song Dataset and Flight Dataset
+"""
+
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
@@ -8,10 +13,10 @@ import matplotlib.pyplot as plt
 
 # import data
 m = 100000
-msd = pd.read_table("/Users/sifanliu/Dropbox/Random Projection/Experiments/old/real_data/YearPredictionMSD.txt",
+msd = pd.read_table("/Users/Dropbox/Random Projection/Experiments/old/real_data/YearPredictionMSD.txt",
                     delimiter=',', nrows=100000).as_matrix()
 flt = pd.read_csv(
-    '/Users/sifanliu/Dropbox/Random Projection/Experiments/old/real_data/nycflight/nycflight.csv').as_matrix()
+    '/Users/Dropbox/Random Projection/Experiments/old/real_data/nycflight/nycflight.csv').as_matrix()
 flt = flt[:, 1:]
 
 
@@ -226,7 +231,6 @@ plt.plot(lbd_seq, test_error, label='Test error')
 plt.plot(lbd_cv * np.ones(10), np.linspace(lb, ub, 10), ls='--', linewidth=3, label='CV min {:.3f}'.format(test_error[lbd_cv_idx]))
 plt.plot(lbd_cv_debiased * np.ones(10), np.linspace(lb, ub, 10), ls='-.', linewidth=3, label='Debiased CV {:.3f}'.format(test_error[lbd_cv_debiased_idx]))
 plt.plot(lbd_smallest * np.ones(10), np.linspace(lb, ub, 10), ls=':', label='Test error min {:.3f}'.format(test_error[lbd_smallest_idx]), linewidth=3)
-# plt.plot(lbd_theory * np.ones(10), np.linspace(lb, ub, 10), ls=':', label='Theory {:.3f}'.format(test_error[lbd_theory_idx]), linewidth=3)
 plt.legend(fontsize=13)
 plt.grid(linestyle='dotted')
 plt.xlabel(r'$\lambda$', fontsize=13)
@@ -234,197 +238,3 @@ plt.ylabel('CV test error', fontsize=13)
 plt.title('Flight CV', fontsize=13)
 plt.savefig("./Plots/CV_flt.png")
 
-# estimate SNR
-
-"""
- cross validation for sketching
-"""
-
-steps = 20
-cv_primal = np.zeros((steps, K))
-xi = 0.5
-n = 1000
-q = int(m / n)
-gamma = p / n
-K = 5
-batch_size = n / K
-lbd_seq = np.linspace(0.1, 3, steps)
-r = int(n * xi)
-q = 20
-for k in range(q - 10):
-    if np.mod(k, 10) == 0:
-        print(k)
-    X = msd[n * k: n * (k + 1), 1:]
-    Y = msd[n * k: n * (k + 1), 0].reshape(n, 1)
-    for i in range(steps):
-        lbd = lbd_seq[i]
-        for j in range(K):
-            test_idx = np.arange(j * batch_size, (j + 1) * batch_size, 1, dtype=int)
-            X_test = X[test_idx, :]
-            Y_test = Y[test_idx, :]
-            train_idx = list(set(np.arange(0, n, 1, dtype=int)) - set(test_idx))
-            X_train = X[train_idx, :]
-            Y_train = Y[train_idx, :]
-            L = generate_haar_matrix(r, int((n - batch_size)))
-            beta_primal = np.linalg.inv(
-                X_train.T @ L.T @ L @ X_train / (n - batch_size) + lbd * np.identity(p)) @ X_train.T @ Y_train / (
-                                      n - batch_size)
-            cv_primal[i, j] += np.linalg.norm(Y_test - X_test @ beta_primal) ** 2 / batch_size / (q - 10)
-
-lbd_cv = lbd_seq[np.argmin(np.mean(cv_primal, 1))]
-
-# test error
-X_train = msd[n * (q - 10): n * (q - 9), 1:]
-Y_train = msd[n * (q - 10): n * (q - 9), 0]
-X_test = msd[n * (q - 9): n * q, 1:]
-Y_test = msd[n * (q - 9): n * q, 0]
-test_error_primal = np.zeros(steps)
-for i in range(steps):
-    lbd = lbd_seq[i]
-    L = generate_haar_matrix(r, n)
-    beta_ridge = np.linalg.inv(
-        X_train.T @ L.T @ L @ X_train / n + lbd * np.identity(p)) @ X_train.T @ Y_train / n
-    test_error_primal[i] = np.linalg.norm(Y_test - X_test @ beta_ridge) ** 2 / (9 * n)
-
-lbd_smallest = lbd_seq[np.argmin(test_error_primal)]
-
-
-# theory
-
-"""
-    Estimate SNR
-"""
-# method of moment
-beta_hat = np.linalg.inv(X.T @ X) @ X.T @ Y
-sigma_hat_sq = np.linalg.norm(Y - X @ beta_hat) ** 2 / (n - p)
-tau_hat_sq = np.linalg.norm(Y) ** 2 / n - sigma_hat_sq
-
-# MLE
-
-# RMLE
-
-# EigenPrism
-
-lbd_optim_theory = 0
-alpha = sqrt(tau_hat_sq)
-sigma = sqrt(sigma_hat_sq)
-mse = np.inf
-flag = 0
-for i in range(steps):
-    lbd = lbd_seq[i]
-    a = MSE_primal(lbd, gamma, xi, alpha=alpha, sigma=sigma)
-    if a < mse:
-        mse = a
-        lbd_optim_theory = lbd
-        flag = i
-
-err_theory = test_error_primal[flag]
-err_cv = test_error_primal[np.argmin(np.mean(cv_primal, 1))]
-
-plt.errorbar(lbd_seq, np.mean(cv_primal, 1), np.std(cv_primal, 1), capsize=2, label='CV errorbar')
-plt.plot(lbd_seq, test_error_primal, label='Test error')
-plt.plot(lbd_cv * np.ones(10), np.linspace(min(test_error_primal), max(test_error_primal), 10), label='Optimal CV {:.3f}'.format(err_cv))
-plt.plot(lbd_smallest * np.ones(10), np.linspace(min(test_error_primal), max(test_error_primal), 10),
-         label='Smallest test error {:.3f}'.format(np.min(test_error_primal)), ls='--', linewidth=3)
-plt.plot(lbd_optim_theory * np.ones(10), np.linspace(min(test_error_primal), max(test_error_primal), 10),
-         label='Theory {:.3f}'.format(err_theory), ls=':', linewidth=3)
-plt.legend()
-plt.xlabel(r'$\lambda$', fontsize=12)
-plt.ylabel('Test error', fontsize=12)
-plt.grid(linestyle='dotted')
-plt.title(r'MSD, $\gamma$={},$\xi$={}'.format(gamma, xi))
-plt.savefig('msd_cv_debias_test_sketch_xi={}.png'.format(xi))
-
-print(lbd_smallest, lbd_cv, lbd_optim_theory)
-print("theory optimal: ", err_theory, "\n", "cv optimal: ", err_cv, "\n", "smallest test error: ", np.min(test_error_primal))
-
-# flight dataset sketch cv
-m = flt.shape[0]
-p = flt.shape[1] - 1
-for i in range(flt.shape[1]):
-    flt[:, i] = standardize(flt[:, i])
-np.random.seed(130)
-flt = np.random.permutation(flt)
-n = 300
-q = int(m / n)
-gamma = p / n
-K = 5
-batch_size = n / K
-steps = 20
-cv_primal_flt = np.zeros((steps, K))
-xi = 0.5
-lbd_seq = np.linspace(0.1, 3, steps)
-r = int(n * xi)
-q = 50
-for k in range(q - 10):
-    if np.mod(k, 10) == 0:
-        print(k)
-    X = flt[n * k: n * (k + 1), 1:]
-    Y = flt[n * k: n * (k + 1), 0].reshape(n, 1)
-    for i in range(steps):
-        lbd = lbd_seq[i]
-        for j in range(K):
-            test_idx = np.arange(j * batch_size, (j + 1) * batch_size, 1, dtype=int)
-            X_test = X[test_idx, :]
-            Y_test = Y[test_idx, :]
-            train_idx = list(set(np.arange(0, n, 1, dtype=int)) - set(test_idx))
-            X_train = X[train_idx, :]
-            Y_train = Y[train_idx, :]
-            L = generate_haar_matrix(r, int((n - batch_size)))
-            beta_primal = np.linalg.inv(
-                X_train.T @ L.T @ L @ X_train / (n - batch_size) + lbd * np.identity(p)) @ X_train.T @ Y_train / (
-                                      n - batch_size)
-            cv_primal[i, j] += np.linalg.norm(Y_test - X_test @ beta_primal) ** 2 / batch_size / (q - 10)
-
-lbd_cv = lbd_seq[np.argmin(np.mean(cv_primal, 1))]
-
-# test error
-X_train = flt[n * (q - 10): n * (q - 9), 1:]
-Y_train = flt[n * (q - 10): n * (q - 9), 0]
-X_test = flt[n * (q - 9): n * q, 1:]
-Y_test = flt[n * (q - 9): n * q, 0]
-test_error_primal = np.zeros(steps)
-for i in range(steps):
-    lbd = lbd_seq[i]
-    L = generate_haar_matrix(r, n)
-    beta_ridge = np.linalg.inv(
-        X_train.T @ L.T @ L @ X_train / n + lbd * np.identity(p)) @ X_train.T @ Y_train / n
-    test_error_primal[i] = np.linalg.norm(Y_test - X_test @ beta_ridge) ** 2 / (9 * n)
-
-lbd_smallest = lbd_seq[np.argmin(test_error_primal)]
-
-
-# theory
-lbd_optim_theory = 0
-alpha = 1
-sigma = 1
-mse = np.inf
-flag = 0
-for i in range(steps):
-    lbd = lbd_seq[i]
-    a = MSE_primal(lbd, gamma, xi, alpha=alpha, sigma=sigma)
-    if a < mse:
-        mse = a
-        lbd_optim_theory = lbd
-        flag = i
-
-err_theory = test_error_primal[flag]
-err_cv = test_error_primal[np.argmin(np.mean(cv_primal, 1))]
-print("theory optimal: ", err_theory, "\n", "cv optimal: ", err_cv, "\n", "smallest test error: ", np.min(test_error_primal))
-
-
-lb = np.min(test_error_primal)
-ub = np.max(np.mean(cv_primal, 1))
-plt.errorbar(lbd_seq, np.mean(cv_primal, 1), np.std(cv_primal, 1), capsize=2, label='CV errorbar')
-plt.plot(lbd_seq, test_error_primal, label='Test error')
-plt.plot(lbd_cv * np.ones(10), np.linspace(lb, ub, 10), label='Optimal CV {:.3f}'.format(err_cv))
-plt.plot(lbd_smallest * np.ones(10), np.linspace(lb, ub, 10),
-         label='Smallest test error {:.3f}'.format(np.min(test_error_primal)), ls='--', linewidth=3)
-plt.plot(lbd_optim_theory * np.ones(10), np.linspace(lb, ub, 10),
-         label='Theory {:.3f}'.format(err_theory), ls=':', linewidth=3)
-plt.legend()
-plt.xlabel(r'$\lambda$', fontsize=12)
-plt.ylabel('Test error', fontsize=12)
-plt.grid(linestyle='dotted')
-plt.title(r'Flight, $\gamma$={},$\xi$={}'.format(gamma, xi))
-plt.savefig('flt_cv_debias_test_sketch_xi={}.png'.format(xi))
