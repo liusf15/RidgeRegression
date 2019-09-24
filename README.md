@@ -1,3 +1,3 @@
 # RidgeRegression
 
-Codes for the paper "Ridge Regression: Asymptotics, Cross-Validation, and Sketching"
+Codes for the paper "Ridge Regression: Structure, Cross-Validation, and Sketching"
