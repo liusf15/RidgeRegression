@@ -1,3 +1,4 @@
 # RidgeRegression
 
-Codes for the paper "Ridge Regression: Structure, Cross-Validation, and Sketching" by Sifan Liu and Edgar Dobriban.
+Code reproducing the experiments from the paper: 
+Sifan Liu and Edgar Dobriban, Ridge Regression: Structure, Cross-Validation, and Sketching: 
