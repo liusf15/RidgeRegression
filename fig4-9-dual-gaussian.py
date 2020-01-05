@@ -193,10 +193,10 @@ for i in range(num_steps):
         bias_3_primal_gaus[k, i] = norm(beta_primal) ** 2
 
 # theoretical part
-zeta_seq_2 = np.linspace(0.01, 5, 100)
+gamma = 1.1
+zeta_seq_2 = np.linspace(0.01, 2, 100)
 theo_gaus = np.zeros((100, 4))
-gamma = 3
-alpha = 3
+alpha = 5
 for j in range(1):
     # lbd = gamma * sigma ** 2 / alpha ** 2
     lbd = 1
@@ -229,16 +229,16 @@ plt.title('Gaussian dual sketch', fontsize=14)
 plt.savefig('./Plots/dual_gaus_gamma_{}_alpha_{}_lbd_{}.png'.format(gamma, alpha, lbd))
 
 # plot results for primal gaussian
-xx_primal = np.mean(primal_simu_gaus, axis=0)
-yerr_primal = np.std(primal_simu_gaus, axis=0)
-plt.errorbar(zeta_seq, xx_primal, yerr_primal, capsize=3, lw=4, label='Simulation')
-plt.plot(zeta_seq_2, theo_gaus[:, 0], lw=4, ls='--', label='Theory')
-plt.plot(zeta_seq_2, np.ones(100) * MSE_original(lbd, gamma, alpha, sigma), lw=3, ls='-.', label='No sketching')
-plt.grid(linestyle='dotted')
-plt.legend(fontsize=14)
-plt.xlabel(r'$d/n$', fontsize=14)
-plt.ylabel(r'MSE', fontsize=14)
-plt.title('Gaussian primal sketch (zero noise)', fontsize=14)
+# xx_primal = np.mean(primal_simu_gaus, axis=0)
+# yerr_primal = np.std(primal_simu_gaus, axis=0)
+# plt.errorbar(zeta_seq, xx_primal, yerr_primal, capsize=3, lw=4, label='Simulation')
+# plt.plot(zeta_seq_2, theo_gaus[:, 0], lw=4, ls='--', label='Theory')
+# plt.plot(zeta_seq_2, np.ones(100) * MSE_original(lbd, gamma, alpha, sigma), lw=3, ls='-.', label='No sketching')
+# plt.grid(linestyle='dotted')
+# plt.legend(fontsize=14)
+# plt.xlabel(r'$d/n$', fontsize=14)
+# plt.ylabel(r'MSE', fontsize=14)
+# plt.title('Gaussian primal sketch (zero noise)', fontsize=14)
 #
 # # check intermediate
 # lbd = 1

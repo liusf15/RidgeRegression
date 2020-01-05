@@ -135,8 +135,8 @@ def optimal_lambda(method, gamma, xi=1, alpha=1, sigma=1):
 
 
 # primal sketch
-n = 500
-gamma = 1.5
+n = 300
+gamma = 5
 p = int(n * gamma)
 alpha = 3
 sigma = 1
