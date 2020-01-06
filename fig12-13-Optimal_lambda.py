@@ -1,6 +1,7 @@
 """
-    Codes for reproducing Figure 12, 13
-    Numerical ways to Find the optimal lambda of orthogonal sketching
+    Codes for reproducing:
+    Figure 12: bias-variance tradeoff at fixed lambda which is optimal for the original ridge regression
+    Figure 13: numerical ways to Find the optimal lambda of orthogonal sketching
 """
 
 import numpy as np
@@ -152,56 +153,6 @@ for i in range(200):
     lbd_dual_optimal[i] = lbd
     mse_dual_optimal[i, :] = MSE('dual', lbd, gamma, zeta, alpha, sigma, verbose)
 
-# Figure 12
-# MSE at optimal lambda, different xi
-plt.plot(xi_seq, mse_primal_optimal[:, 0], label='Primal MSE', ls=':')
-plt.plot(xi_seq, mse_dual_optimal[:, 0], label='Dual MSE', ls='--')
-plt.plot(xi_seq, mse_full_optimal[:, 0], label='Full MSE', ls='-.')
-plt.plot(xi_seq, mse_original_optimal * np.ones(200), label='Original')
-plt.xlabel(r'$\xi$')
-plt.ylabel('MSE')
-plt.title(r'MSE at optimal $\lambda$, $\gamma={}$'.format(gamma))
-plt.grid(linestyle='dotted')
-plt.legend()
-plt.savefig('primal_dual_mse_gamma={}.png'.format(gamma))
-
-# bias at optimal lambda, different xi
-plt.plot(xi_seq, mse_primal_optimal[:, 1], label='Primal bias', ls=':')
-plt.plot(xi_seq, mse_dual_optimal[:, 1], label='Dual bias', ls='--')
-plt.plot(xi_seq, mse_full_optimal[:, 1], label='Full bias', ls='-.')
-plt.plot(xi_seq, bias_original_optimal * np.ones(200), label='Original')
-plt.xlabel(r'$\xi$')
-plt.ylabel('Bias')
-plt.title(r'Bias at optimal $\lambda$, $\gamma={}$'.format(gamma))
-plt.grid(linestyle='dotted')
-plt.legend()
-plt.savefig('primal_dual_bias_gamma={}.png'.format(gamma))
-
-# variance at optimal lambda, different xi
-plt.plot(xi_seq, mse_primal_optimal[:, 2], label='Primal var', ls=':')
-plt.plot(xi_seq, mse_dual_optimal[:, 2], label='Dual var', ls='--')
-plt.plot(xi_seq, mse_full_optimal[:, 2], label='Full bias', ls='-.')
-plt.plot(xi_seq, var_original_optimal * np.ones(200), label='Original')
-plt.xlabel(r'$\xi$')
-plt.ylabel('Variance')
-plt.title(r'Variance at optimal $\lambda$, $\gamma={}$'.format(gamma))
-plt.grid(linestyle='dotted')
-plt.legend()
-plt.savefig('primal_dual_var_gamma={}.png'.format(gamma))
-
-
-# optimal lambda, different xi
-plt.plot(xi_seq, lbd_primal_optimal, label='Primal sketch', ls=':')
-plt.plot(xi_seq, lbd_dual_optimal, label='Dual sketch', ls='--')
-plt.plot(xi_seq, lbd_full_optimal, label='Full sketch', ls='-.')
-plt.plot(xi_seq, lbd_original_optimal * np.ones(200), label='Original')
-plt.xlabel(r'$\xi$')
-plt.ylabel(r'Optimal $\lambda^*$')
-plt.title(r'Optimal $\lambda^*$, $\gamma={}$'.format(gamma))
-plt.grid(linestyle='dotted')
-plt.legend()
-plt.savefig('primal_dual_optimal_lbd_gamma={}.png'.format(gamma))
-
 
 # bias variance trade-off
 verbose = 1
@@ -210,48 +161,10 @@ primal_mse_bias_var = np.zeros((100, 3))
 dual_mse_bias_var = np.zeros((100, 3))
 lbd_seq = np.linspace(0.5, 2, 100)
 
-xi = 0.5
-for i in range(100):
-    lbd = lbd_seq[i]
-    original_mse_bias_var[i, :] = MSE('original', lbd, gamma, xi, alpha, sigma, verbose)
-    primal_mse_bias_var[i, :] = MSE('primal', lbd, gamma, xi, alpha, sigma, verbose)
-    dual_mse_bias_var[i, :] = MSE('dual', lbd, gamma, xi, alpha, sigma, verbose)
-
-
-plt.plot(lbd_seq, original_mse_bias_var[:, 1], label='Bias', ls='--')
-plt.plot(lbd_seq, original_mse_bias_var[:, 2], label='Variance', ls=':')
-plt.plot(lbd_seq, original_mse_bias_var[:, 0], label='MSE')
-plt.xlabel(r'$\lambda$')
-plt.title(r'Bias & Variance, $\gamma$={}'.format(gamma))
-plt.grid(linestyle='dotted')
-plt.legend()
-plt.savefig('bias_var_gamma={}.png'.format(gamma))
-
-
-plt.plot(lbd_seq, primal_mse_bias_var[:, 1], label='Bias', ls='--')
-plt.plot(lbd_seq, primal_mse_bias_var[:, 2], label='Variance', ls=':')
-plt.plot(lbd_seq, primal_mse_bias_var[:, 0], label='MSE')
-
-plt.plot(lbd_seq, dual_mse_bias_var[:, 1], label='Bias', ls='--')
-plt.plot(lbd_seq, dual_mse_bias_var[:, 2], label='Variance', ls=':')
-plt.plot(lbd_seq, dual_mse_bias_var[:, 0], label='MSE')
-
-# compare bias for different lambda, fix xi
-plt.plot(lbd_seq, original_mse_bias_var[:, 1], label='Original bias', ls='--')
-plt.plot(lbd_seq, primal_mse_bias_var[:, 1], label='Primal bias', ls='--')
-plt.plot(lbd_seq, dual_mse_bias_var[:, 1], label='Dual bias', ls='--')
-plt.legend()
-
-# compare variance for different lambda, fix xi
-plt.plot(lbd_seq, original_mse_bias_var[:, 2], label='Original var', ls='--')
-plt.plot(lbd_seq, primal_mse_bias_var[:, 2], label='Primal var', ls='--')
-plt.plot(lbd_seq, dual_mse_bias_var[:, 2], label='Dual var', ls='--')
-plt.legend()
 
 verbose = 1
 gamma = 0.7
 xi_seq = np.linspace(0.001, 1, 100)
-# zeta_seq = np.linspace(0.001, gamma, 100)
 lbd = 0.7
 original_mse, original_bias, original_var = MSE('original', lbd, gamma, 1, alpha, sigma, verbose)
 for i in range(100):
@@ -260,48 +173,39 @@ for i in range(100):
     zeta = xi * gamma
     dual_mse_bias_var[i, :] = MSE('dual', lbd, gamma, zeta, alpha, sigma, verbose)
 
-plt.plot(xi_seq, primal_mse_bias_var[:, 0], label='MSE')
-plt.plot(xi_seq, primal_mse_bias_var[:, 1], label='Bias')
-plt.plot(xi_seq, primal_mse_bias_var[:, 2], label='Var')
-plt.legend()
-
-plt.plot(xi_seq, dual_mse_bias_var[:, 0], label='MSE')
-plt.plot(xi_seq, dual_mse_bias_var[:, 1], label='Bias')
-plt.plot(xi_seq, dual_mse_bias_var[:, 2], label='Var')
-plt.legend()
-
-# bias for different xi, fix lbd=0.7
-plt.plot(xi_seq, primal_mse_bias_var[:, 1], label='Primal bias', ls=':')
-plt.plot(xi_seq, dual_mse_bias_var[:, 1], label='Dual bias', ls='--')
-plt.plot(xi_seq, np.ones(100) * original_bias, label='Original bias')
-plt.legend()
-plt.xlabel(r'$\xi$')
-plt.ylabel('Bias')
+# Figure 12
+# (middle) bias for different xi, fix lbd=0.7
+plt.plot(xi_seq, primal_mse_bias_var[:, 1], label='Primal bias', ls=':', lw=4)
+plt.plot(xi_seq, dual_mse_bias_var[:, 1], label='Dual bias', ls='--', lw=4)
+plt.plot(xi_seq, np.ones(100) * original_bias, label='Original bias', lw=4)
+plt.legend(fontsize=14)
+plt.xlabel(r'$\xi$', fontsize=14)
+plt.ylabel(r'$Bias^2$', fontsize=14)
 plt.grid(linestyle='dotted')
-plt.title(r'Bias, $\gamma=${},$\lambda=${}'.format(gamma, lbd))
-plt.savefig('bias_gamma={}.png'.format(gamma))
+plt.title(r'$Bias^2$, $\gamma=${}, $\lambda=${}'.format(gamma, lbd), fontsize=14)
+plt.savefig('./Plots/bias_gamma={}.png'.format(gamma))
 
-# variance for different xi, fix lbd=0.7
-plt.plot(xi_seq, primal_mse_bias_var[:, 2], label='Primal variance', ls=':')
-plt.plot(xi_seq, dual_mse_bias_var[:, 2], label='Dual variance', ls='--')
-plt.plot(xi_seq, np.ones(100) * original_var, label='Original variance')
-plt.legend()
-plt.xlabel(r'$\xi$')
-plt.ylabel('Variance')
+# (right) variance for different xi, fix lbd=0.7
+plt.plot(xi_seq, primal_mse_bias_var[:, 2], label='Primal variance', ls=':', lw=4)
+plt.plot(xi_seq, dual_mse_bias_var[:, 2], label='Dual variance', ls='--', lw=4)
+plt.plot(xi_seq, np.ones(100) * original_var, label='Original variance', lw=4)
+plt.legend(fontsize=14)
+plt.xlabel(r'$\xi$', fontsize=14)
+plt.ylabel('Variance', fontsize=14)
 plt.grid(linestyle='dotted')
-plt.title(r'Variance, $\gamma=${},$\lambda=${}'.format(gamma, lbd))
-plt.savefig('variance_gamma={}.png'.format(gamma))
+plt.title(r'Variance, $\gamma=${}, $\lambda=${}'.format(gamma, lbd), fontsize=14)
+plt.savefig('./Plots/variance_gamma={}.png'.format(gamma))
 
-# MSE for different xi, fix lbd=0.7
-plt.plot(xi_seq, primal_mse_bias_var[:, 0], label='Primal MSE', ls=':')
-plt.plot(xi_seq, dual_mse_bias_var[:, 0], label='Dual MSE', ls='--')
-plt.plot(xi_seq, np.ones(100) * original_mse, label='Original MSE')
-plt.legend()
-plt.xlabel(r'$\xi$')
-plt.ylabel('MSE')
+# (left) MSE for different xi, fix lbd=0.7
+plt.plot(xi_seq, primal_mse_bias_var[:, 0], label='Primal MSE', ls=':', lw=4)
+plt.plot(xi_seq, dual_mse_bias_var[:, 0], label='Dual MSE', ls='--', lw=4)
+plt.plot(xi_seq, np.ones(100) * original_mse, label='Original MSE', lw=4)
+plt.legend(fontsize=14)
+plt.xlabel(r'$\xi$', fontsize=14)
+plt.ylabel('MSE', fontsize=14)
 plt.grid(linestyle='dotted')
-plt.title(r'MSE, $\gamma=${},$\lambda=${}'.format(gamma, lbd))
-plt.savefig('MSE_gamma={}.png'.format(gamma))
+plt.title(r'MSE, $\gamma=${}, $\lambda=${}'.format(gamma, lbd), fontsize=14)
+plt.savefig('./Plots/MSE_gamma={}.png'.format(gamma))
 
 # Figure 13
 # compare full and primal sketch, fix lambda
@@ -349,6 +253,7 @@ for i in range(200):
     lbd_full_optimal[i] = lbd
     mse_full_optimal[i, :] = MSE('full', lbd, gamma, xi, alpha, sigma, verbose)
 
+# Figure 13
 # plot mse
 plt.plot(xi_seq, mse_primal_optimal[:, 0], label='Primal sketch', linewidth=3)
 plt.plot(xi_seq, mse_dual_optimal[:, 0], label='Dual sketch', ls='--', linewidth=3)

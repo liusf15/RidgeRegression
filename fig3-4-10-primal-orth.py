@@ -1,21 +1,18 @@
 """
-    Codes for reproducing Figure 3, 4
-    Simulation on primal orthogonal sketching
-    Bias-variance tradeoff
-    Relative efficiency of marginal regression
-    Simulation on full sketching
+    Codes for reproducing:
+    Figure 3, MSE of primal orthogonal sketching & bias-variance tradeoff
+    Figure 4 (left), relative efficiency of marginal regression
+    Figure 10, MSE of full sketching
 """
 
-import numpy as np
 import matplotlib as mpl
+import numpy as np
 
 mpl.use('tkAgg')
 import matplotlib.pyplot as plt
 from numpy import sqrt
 from numpy.linalg import norm
 from numpy.linalg import inv
-from scipy.integrate import quad
-import os
 
 
 def generate_haar_matrix(n, p):
@@ -185,6 +182,7 @@ for i in range(100):
     xi = xi_seq_2[i]
     primal_bia_var[i, :] = primal_orth(lbd, gamma, xi, alpha, sigma, 1)
 
+# Figure 3, MSE of primal sketching
 MSE_ridge, bias_ridge, var_ridge = MSE_original(lbd, gamma, alpha, sigma, 1)
 plt.plot(xi_seq_2, primal_bia_var[:, 1] / bias_ridge, label='Bias^2', lw=4)
 plt.plot(xi_seq_2, primal_bia_var[:, 2] / var_ridge, label='Var', ls='-.', lw=4)
@@ -225,6 +223,7 @@ for i in range(100):
     zeta = zeta_seq_2[i]
     theory_dual[i] = dual_orth(lbd, gamma, zeta, alpha, sigma) / MSE_original(lbd, gamma, alpha, sigma)
 
+# Figure, MSE of dual sketching
 xx = np.mean(simu_dual, 1)
 yerr = np.std(simu_dual, 1)
 # plt.figure(0, figsize=(12, 8))
@@ -264,6 +263,7 @@ for i in range(3):
         lbd = gamma * sigma ** 2 / alpha ** 2 + 1 + gamma
         marginal_re[i, j] = marginal_orth(lbd, gamma, alpha, sigma) / MSE_original(gamma * sigma ** 2 / alpha ** 2, gamma, alpha, sigma)
 
+# Figure 4, MSE of marginal regression
 plt.plot(alpha_seq, marginal_re[0, :], label=r'$\gamma={}$'.format(gamma_seq[0]), lw=4)
 plt.plot(alpha_seq, marginal_re[1, :], label=r'$\gamma={}$'.format(gamma_seq[1]), lw=4, ls='--')
 plt.plot(alpha_seq, marginal_re[2, :], label=r'$\gamma={}$'.format(gamma_seq[2]), lw=4, ls=':')
@@ -319,6 +319,7 @@ for i in range(100):
     xi = xi_seq[i]
     theory_full[i, :] = MSE_full(lbd, gamma, xi, alpha, sigma, verbose=1)
 
+# Figure, MSE of full sketching
 plt.plot(xi_seq, theory_full[:, 0], label='MSE')
 plt.plot(xi_seq, theory_full[:, 1], label='Bias')
 plt.plot(xi_seq, theory_full[:, 2], label='Variance')

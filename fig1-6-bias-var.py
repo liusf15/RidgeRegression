@@ -1,6 +1,7 @@
 """
-    Codes for reproducing Figure 1, 6
-    Bias-variance tradeoff of ridge regression, fixed lambda and optimal lambda
+    Code for reproducing:
+    Figure 1, Bias-variance tradeoff of ridge regression;
+    Figure 6, fixed lambda and optimal lambda
 """
 
 
@@ -70,6 +71,7 @@ for i in range(100):
     lbd = lbd_seq_3[i]
     theory_2[i, :] = MSE_original(lbd, gamma_2, alpha, sigma, verbose=1)
 
+# Figure 1, ridge regression bias-variance tradeoff
 plt.figure(0, figsize=(10, 4))
 p1 = plt.subplot(121)
 plt.plot(lbd_seq_2, theory_1[:, 0], label='test error', ls='-', lw=4)
@@ -90,7 +92,7 @@ p2.set_title(r'$\gamma={}$'.format(gamma_2), fontsize=14)
 plt.subplots_adjust(wspace=0.1)
 plt.savefig('./Plots/residual_bias_var_alpha_{}_sigma_{}.png'.format(alpha, sigma))
 
-# at optimal lambda
+# Figure 6, bias and variance at optimal lambda
 alpha = 1
 sigma = 1
 gamma_seq = np.linspace(0.01, 5, 100)

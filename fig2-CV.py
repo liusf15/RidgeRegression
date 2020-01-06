@@ -1,22 +1,21 @@
 """
-    Codes for reproducing Figure 2
-    K-fold cross-validation on Million Song Dataset and Flight Dataset
+    Codes for reproducing:
+    Figure 2, K-fold cross-validation on Million Song Dataset and Flight Dataset
 """
 
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
 from numpy import sqrt
-
 mpl.use('tkAgg')
 import matplotlib.pyplot as plt
 
 # import data
 m = 100000
-msd = pd.read_table("/Users/Dropbox/Random Projection/Experiments/old/real_data/YearPredictionMSD.txt",
+msd = pd.read_table("/Users/sifanliu/Dropbox/Projects/Random Projection/Experiments/old/real_data/YearPredictionMSD.txt",
                     delimiter=',', nrows=100000).as_matrix()
 flt = pd.read_csv(
-    '/Users/Dropbox/Random Projection/Experiments/old/real_data/nycflight/nycflight.csv').as_matrix()
+    '/Users/sifanliu/Dropbox/Projects/Random Projection/Experiments/old/real_data/nycflight/nycflight.csv').as_matrix()
 flt = flt[:, 1:]
 
 
@@ -135,8 +134,9 @@ for i in range(steps):
         lbd_theory_idx = i
         break
 
-lb = np.min(test_error)
-ub = np.max(np.mean(cv_error, 1))
+# Figure 2 (left), cross-validation on the million song dataset
+lb = 0.83
+ub = 0.91
 plt.errorbar(lbd_seq, np.mean(cv_error, 1), np.sqrt(np.var(cv_error, 1)), capsize=2, label='CV errorbar')
 plt.plot(lbd_seq, test_error, label='Test error')
 plt.plot(lbd_cv * np.ones(10), np.linspace(lb, ub, 10), ls='--', linewidth=3, label='CV min {:.3f}'.format(test_error[lbd_cv_idx]))
@@ -153,8 +153,6 @@ plt.savefig("./Plots/CV_MSD.png")
 print(test_error[lbd_cv_debiased_idx], test_error[lbd_cv_idx], test_error[lbd_smallest_idx])
 print("Debias improve test error by", test_error[lbd_cv_idx] - test_error[lbd_cv_debiased_idx])
 
-
-# flight dataset
 m = flt.shape[0]
 p = flt.shape[1] - 1
 for i in range(flt.shape[1]):
@@ -223,7 +221,7 @@ for i in range(steps):
         lbd_theory_idx = i
         break
 
-
+# Figure 2 (right), cross-validation on the nycflight dataset
 lb = np.min(test_error)
 ub = np.max(np.mean(cv_error_flt, 1))
 plt.errorbar(lbd_seq, np.mean(cv_error_flt, 1), np.sqrt(np.var(cv_error_flt, 1)), capsize=2, label='CV errorbar')

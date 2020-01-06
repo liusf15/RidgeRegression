@@ -1,6 +1,6 @@
 """
-    Codes for reproducing Figure 5
-    Simulation about MSE of ridge regression
+    Codes for reproducing:
+    Figure 5: MSE of ridge regression
 """
 
 import numpy as np
